@@ -1,36 +1,197 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Gemini Chat Test</title>
+  <title>Manomitra 🌿</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #eef7f1;
+      --card: #ffffff;
+      --accent: #7bcfa6;
+      --accent-dark: #5fb48c;
+      --user: #d9f2e6;
+      --ai: #f3fdf8;
+      --text: #2f4f3f;
+      --muted: #6b8f7d;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #e8f5ec, #f4fbf7);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent), #9fe0bf);
+      padding: 16px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .chat {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      border-radius: 14px;
+      line-height: 1.4;
+      font-size: 0.95rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .ai {
+      background: var(--ai);
+      align-self: flex-start;
+      border-top-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .user {
+      background: var(--user);
+      align-self: flex-end;
+      border-top-right-radius: 4px;
+      color: var(--text);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-box {
+      display: flex;
+      padding: 12px;
+      background: #ffffff;
+      border-top: 1px solid #e0eee7;
+      gap: 8px;
+    }
+
+    .input-box input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #cfe8dc;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .input-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(123, 207, 166, 0.2);
+    }
+
+    .input-box button {
+      padding: 0 18px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .input-box button:hover {
+      background: var(--accent-dark);
+    }
+  </style>
 </head>
+
 <body>
-  <h2>Test Gemini Chatbot</h2>
+  <div class="app">
+    <header>
+      <h1>🌿 Manomitra</h1>
+      <p>Your calm, supportive AI companion</p>
+    </header>
 
-  <input id="msg" placeholder="Type message..." />
-  <button onclick="send()">Send</button>
+    <div class="chat" id="chat">
+      <div class="msg ai">
+        Hello. I’m here with you 🌱  
+        You can talk to me freely.
+      </div>
+    </div>
 
-  <pre id="out"></pre>
+    <div class="input-box">
+      <input id="input" placeholder="Type your thoughts..." />
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
 
   <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("input");
+
     async function send() {
-      const msg = document.getElementById("msg").value;
+      const text = input.value.trim();
+      if (!text) return;
 
-      const res = await fetch(
-        "https://gemini-chatbot-p9xz.onrender.com/chat",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ message: msg })
-        }
-      );
+      addMessage(text, "user");
+      input.value = "";
 
-      const data = await res.json();
-      document.getElementById("out").textContent +=
-        "AI: " + data.reply + "\n\n";
+      try {
+        const res = await fetch(
+          "https://gemini-chatbot-p9xz.onrender.com/chat",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+          }
+        );
+
+        const data = await res.json();
+        addMessage(data.reply || "…", "ai");
+      } catch (e) {
+        addMessage("Something went wrong. Please try again 🌿", "ai");
+      }
+    }
+
+    function addMessage(text, type) {
+      const div = document.createElement("div");
+      div.className = `msg ${type}`;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
     }
   </script>
 </body>
